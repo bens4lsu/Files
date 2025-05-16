@@ -1,3 +1,4 @@
+
 /**
  *  Files
  *
@@ -172,7 +173,8 @@ public extension Location {
     func copy(to folder: Folder) throws -> Self {
         let path = folder.path + name
         try storage.copy(to: path)
-        return try Self(path: path)
+        //return try Self(path: path)
+        return self
     }
 
     /// Delete this location. It will be permanently deleted. Use with caution.
@@ -273,7 +275,20 @@ fileprivate extension Storage {
 
     func copy(to newPath: String) throws {
         do {
-            try fileManager.copyItem(atPath: path, toPath: newPath)
+            var tmpPath = self.makeParentPath(for: newPath) ?? "/"
+            
+            switch LocationType.kind {
+            
+            case .folder:
+                let items = try fileManager.contentsOfDirectory(atPath: path)
+                for item in items {
+                    try fileManager.copyItem(atPath: path + item, toPath: tmpPath + item)
+            }
+            case .file:
+                let fileNameOnly = URL(string: path)?.pathComponents.last ?? ""
+                tmpPath += fileNameOnly
+                try fileManager.copyItem(atPath: path, toPath: tmpPath)
+            }
         } catch {
             throw LocationError(path: path, reason: .copyFailed(error))
         }
@@ -1043,3 +1058,4 @@ private extension String {
         return appending(suffix)
     }
 }
+
