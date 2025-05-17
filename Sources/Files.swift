@@ -1058,4 +1058,3 @@ private extension String {
         return appending(suffix)
     }
 }
-
