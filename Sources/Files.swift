@@ -290,8 +290,7 @@ fileprivate extension Storage {
                     }
             }
             case .file:
-                let fileNameOnly = URL(string: path)?.pathComponents.last ?? ""
-                try fileManager.copyItem(atPath: path, toPath: newPath + fileNameOnly)
+                try fileManager.copyItem(atPath: path, toPath: newPath)
             }
         } catch {
             throw LocationError(path: path, reason: .copyFailed(error))
