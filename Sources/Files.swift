@@ -275,19 +275,23 @@ fileprivate extension Storage {
 
     func copy(to newPath: String) throws {
         do {
-            var tmpPath = self.makeParentPath(for: newPath) ?? "/"
-            
             switch LocationType.kind {
             
             case .folder:
+                let tmpPath = newPath.appendingSuffixIfNeeded("/")
                 let items = try fileManager.contentsOfDirectory(atPath: path)
                 for item in items {
-                    try fileManager.copyItem(atPath: path + item, toPath: tmpPath + item)
+                    try fileManager.createDirectory(atPath: tmpPath, withIntermediateDirectories: true)
+                    if let folder = try? Folder(path: self.path + item) {
+                        try folder.storage.copy(to: tmpPath + item)
+                    }
+                    if let file = try? File(path: self.path + item) {
+                        try file.storage.copy(to: tmpPath + item)
+                    }
             }
             case .file:
                 let fileNameOnly = URL(string: path)?.pathComponents.last ?? ""
-                tmpPath += fileNameOnly
-                try fileManager.copyItem(atPath: path, toPath: tmpPath)
+                try fileManager.copyItem(atPath: path, toPath: newPath + fileNameOnly)
             }
         } catch {
             throw LocationError(path: path, reason: .copyFailed(error))
