@@ -274,6 +274,7 @@ fileprivate extension Storage {
     }
 
     func copy(to newPath: String) throws {
+        // updated after macOS update broke copying folder functionality
         do {
             switch LocationType.kind {
             
